@@ -1,0 +1,77 @@
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew"))()
+local tab = library:CreateWindow("Teleport")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local targetPlayer = ""
+
+tab:AddBox({
+    text = "Player Name",
+    callback = function(value) targetPlayer = value end
+})
+
+tab:AddButton({
+    text = "Teleport",
+    callback = function()
+        if targetPlayer == "" then return end
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and (string.find(p.Name:lower(), targetPlayer:lower()) or string.find(p.DisplayName:lower(), targetPlayer:lower())) then
+                local myChar = LocalPlayer.Character
+                local targetChar = p.Character
+                if myChar and targetChar and myChar:FindFirstChild("HumanoidRootPart") and targetChar:FindFirstChild("HumanoidRootPart") then
+                    myChar.HumanoidRootPart.CFrame = targetChar.HumanoidRootPart.CFrame
+                    break
+                end
+            end
+        end
+    end
+})
+
+_G.ESP_Enabled = false
+tab:AddToggle({
+    text = "ESP Toggle",
+    flag = "esp_toggle",
+    callback = function(value) _G.ESP_Enabled = value end
+})
+
+local function CreateESP(p)
+    local function SetupESP()
+        task.spawn(function()
+            local character = p.Character or p.CharacterAdded:Wait()
+            local hrp = character:WaitForChild("HumanoidRootPart", 10)
+            local hum = character:WaitForChild("Humanoid", 10)
+            while p.Character == character and task.wait(0.3) do
+                if not _G.ESP_Enabled then 
+                    if hrp and hrp:FindFirstChild("ESPGui") then hrp.ESPGui:Destroy() end
+                    continue 
+                end
+                if p ~= LocalPlayer and hrp and hum and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local bgui = hrp:FindFirstChild("ESPGui")
+                    if not bgui then
+                        bgui = Instance.new("BillboardGui", hrp)
+                        bgui.Name = "ESPGui"
+                        bgui.AlwaysOnTop = true
+                        bgui.Size = UDim2.new(0, 200, 0, 50)
+                        bgui.ExtentsOffset = Vector3.new(0, 3, 0)
+                        local tl = Instance.new("TextLabel", bgui)
+                        tl.Name = "InfoLabel"
+                        tl.BackgroundTransparency = 1
+                        tl.Size = UDim2.new(1, 0, 1, 0)
+                        tl.TextColor3 = Color3.fromRGB(0, 255, 0)
+                        tl.TextStrokeTransparency = 0
+                        tl.Font = Enum.Font.GothamBold
+                        tl.TextSize = 14
+                    end
+                    local dist = math.floor((LocalPlayer.Character.HumanoidRootPart.Position - hrp.Position).Magnitude)
+                    bgui.InfoLabel.Text = p.DisplayName.."\nHP: "..math.floor(hum.Health).."\n["..dist.." Studs]"
+                end
+            end
+        end)
+    end
+    SetupESP()
+    p.CharacterAdded:Connect(SetupESP)
+end
+
+for _, p in pairs(Players:GetPlayers()) do CreateESP(p) end
+Players.PlayerAdded:Connect(function(p) CreateESP(p) end)
+
+library:Init()
