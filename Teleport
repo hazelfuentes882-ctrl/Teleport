@@ -28,8 +28,8 @@ tab:AddButton({
 
 _G.ESP_Enabled = false
 tab:AddToggle({
-    text = "ESP Toggle",
-    flag = "esp_toggle",
+    text = "ESP",
+    flag = "toggle",
     callback = function(value) _G.ESP_Enabled = value end
 })
 
@@ -56,7 +56,7 @@ local function CreateESP(p)
                         tl.Name = "InfoLabel"
                         tl.BackgroundTransparency = 1
                         tl.Size = UDim2.new(1, 0, 1, 0)
-                        tl.TextColor3 = Color3.fromRGB(0, 255, 0)
+                        tl.TextColor3 = Color3.fromRGB(235, 52, 158)
                         tl.TextStrokeTransparency = 0
                         tl.Font = Enum.Font.GothamBold
                         tl.TextSize = 14
